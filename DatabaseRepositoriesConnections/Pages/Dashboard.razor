@@ -1,0 +1,110 @@
+﻿@page "/"
+@using DatabaseRepositoriesConnections.DataStuff.Models
+@using DatabaseRepositoriesConnections.DataStuff.Repositories
+@using System.Data.SqlClient
+@using System.Diagnostics
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <!-- Grilla de datos -->
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>CustomerID</th>
+                            <th>CompanyName</th>
+                            <th>ContactName</th>
+                            <th>ContactTitle</th>
+                            <th>Address</th>
+                            <th>City</th>
+                            <th>Region</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (customers != null)
+                        {
+                            @foreach (var customer in customers)
+                            {
+                                <tr>
+                                    <td>@customer.CustomerID</td>
+                                    <td>@customer.CompanyName</td>
+                                    <td>@customer.ContactName</td>
+                                    <td>@customer.ContactTitle</td>
+                                    <td>@customer.Address</td>
+                                    <td>@customer.City</td>
+                                    <td>@customer.Region</td>
+                                </tr>
+                            }
+                        }
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <!-- Formulario y botones CRUD -->
+            <div class="mb-2">
+                <button class="btn btn-warning btn-block  mb-4" @onclick="ReadAll">Get All Customers</button>
+                <input class="form-control" placeholder="Customer ID" @bind="@selectedCustomerId" />
+                <button class="btn btn-info btn-block mt-2  mb-3" @onclick="Read">Search Customer</button>
+            </div>
+            <div>
+                <EditForm Model="@currentCustomer">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+                    @* <InputText @bind-Value="currentCustomer.CustomerID" /> *@
+                    <InputText class="form-control mb-2" @bind-Value="currentCustomer.CustomerID" placeholder="Customer ID" />
+                    <InputText class="form-control mb-2" @bind-Value="currentCustomer.CompanyName" placeholder="Company Name" />
+                    <InputText class="form-control mb-2" @bind-Value="currentCustomer.ContactName" placeholder="Contact Title" />
+                    <InputText class="form-control mb-2" @bind-Value="currentCustomer.ContactTitle" placeholder="Contact Name" />
+                    <InputText class="form-control mb-2" @bind-Value="currentCustomer.Address" placeholder="Adress" />
+                    <InputText class="form-control mb-2" @bind-Value="currentCustomer.City" placeholder="City" />
+                    <button class="btn btn-success btn-block mb-2" @onclick="Create">Add Customer</button>
+                    <button class="btn btn-primary btn-block mb-2" @onclick="Update">Update Customer</button>
+                    <button class="btn btn-danger btn-block" @onclick="Delete">Delete Customer</button>
+
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+
+    IRepository repository;
+    List<CustomerModel> customers;
+    CustomerModel currentCustomer = new();
+    string selectedCustomerId;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        repository = new EFRepository();
+
+    }
+
+    private void Create()
+    {
+        repository.InsertCustomer(currentCustomer);
+        customers = repository.GetCustomers();
+    }
+    private void Read()
+    {
+        currentCustomer = repository.GetCustomerById(selectedCustomerId);
+    }
+    private void Update()
+    {
+        repository.UpdateCustomer(currentCustomer);
+        customers = repository.GetCustomers();
+    }
+    private void Delete()
+    {
+        repository.DeleteCustomer(currentCustomer.CustomerID);
+        customers = repository.GetCustomers();
+    }
+    private void ReadAll()
+    {
+        customers = repository.GetCustomers();
+    }
+}

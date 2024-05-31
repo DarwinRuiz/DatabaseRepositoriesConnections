@@ -1,0 +1,9 @@
+bin/
+obj/
+vs/
+.vscode/
+.vs/
+*.runtimeconfig.json
+*.nupkg
+*.user
+*.publishsettings
